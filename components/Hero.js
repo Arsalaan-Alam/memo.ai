@@ -1,4 +1,7 @@
+"use client"
+
 import React, { useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import ButtonPrimary from "./misc/ButtonPrimary";
 import {motion} from "framer-motion";
@@ -26,6 +29,18 @@ const Hero = ({
   ],
 }) => {
   const scrollAnimation = useMemo(() => getScrollAnimation(), []);
+  const [dynamicText, setDynamicText] = useState('Research paper');
+  const texts = ['Research paper', 'Article', 'Video', 'Audio', 'Philosophy Paper'];
+  let currentIndex = 0;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDynamicText(texts[currentIndex]);
+      currentIndex = (currentIndex + 1) % texts.length;
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
@@ -36,24 +51,21 @@ const Hero = ({
           <motion.div
             className="grid grid-flow-row sm:grid-flow-col grid-rows-2 md:grid-rows-1 sm:grid-cols-2 gap-8 py-6 sm:py-16"
             variants={scrollAnimation}>
-            <div className=" flex flex-col justify-center items-start row-start-2 sm:row-start-1">
-              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-medium text-black-600 leading-normal">
-                Learn 10X faster with <strong>memo.ai</strong>
-              </h1>
-              <p className="text-black-500 mt-4 mb-6">
-                Provide a network for all your needs with ease and fun using
-                LaslesVPN discover interesting features from us.
-              </p>
-              <Link href="/choose">
-  <div>
-  <button
-      className={
-        "py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none "}
-    >Get Started</button>
-  </div>
-</Link>
-             
-            </div>
+            <div className="flex flex-col justify-center items-start row-start-2 sm:row-start-1">
+      <h1 className="text-3xl lg:text-4xl xl:text-5xl font-medium text-black-600 leading-normal">
+        Upload a <strong>{dynamicText}</strong>
+      </h1>
+      <p className="text-black-500 mt-4 mb-6">
+        Provide a network for all your needs with ease and fun using LaslesVPN discover interesting features from us.
+      </p>
+      <Link href="/choose">
+        <div>
+          <button className={"py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none "}>
+            Get Started
+          </button>
+        </div>
+      </Link>
+    </div>
             <div className="flex w-full">
               <motion.div className="h-full w-full" variants={scrollAnimation}>
                 <Image
