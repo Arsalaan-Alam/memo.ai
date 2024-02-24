@@ -2,4 +2,4 @@
 ### submission for HackPlaksha 2024
 run ```npm i```
 
-then run ```npm dev```
+then run ```npm run dev```
