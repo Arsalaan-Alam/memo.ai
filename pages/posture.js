@@ -191,6 +191,13 @@ export default function PostureDetector() {
  return (
   <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-5 bg-cover bg-center" style={{ backgroundImage: "url('/assets/background.jpg')" }}>
     <header className="text-center mb-8">
+      {
+        // just show calibarting if the goodPosturePosition is null and isCapturing is true
+        goodPosturePosition.current === null && isCapturing ? (
+          <div className="text-xl font-semibold text-gray-200">Calibrating...</div>
+        ) : null
+      }
+
       {isCapturing ? (
         <div className="relative">
           <Webcam
