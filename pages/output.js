@@ -232,7 +232,7 @@ const OutputPage = () => {
               <div key={index}>
                 {/* Assuming the first element is user message and the second is bot response */}
                 <p className='mb-2 text-gray-200'><strong>User:</strong> {message[0]}</p>
-                <p className='mb-2 text-gray-400'><strong>Bot:</strong> {message[1]}</p>
+                <p className='mb-2 text-gray-300'><strong>Bot:</strong> {message[1]}</p>
               </div>
             ))}
           </div>

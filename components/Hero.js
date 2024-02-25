@@ -60,7 +60,7 @@ const Hero = ({
       </p>
       <Link href="/choose">
         <div>
-          <button className={"py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none "}>
+          <button className={"py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-black-500 hover:shadow-black-md transition-all outline-none "}>
             Get Started
           </button>
         </div>
@@ -91,7 +91,7 @@ const Hero = ({
               variants={scrollAnimation}
             >
               <div className="flex mx-auto w-40 sm:w-auto">
-                <div className="flex items-center justify-center bg-orange-100 w-12 h-12 mr-6 rounded-full">
+                <div className="flex items-center justify-center bg-black-100 w-12 h-12 mr-6 rounded-full">
                   <img src={listUsers.icon} className="h-6 w-6" />
                 </div>
                 <div className="flex flex-col">

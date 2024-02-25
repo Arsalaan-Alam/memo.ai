@@ -55,17 +55,17 @@ const ChoosePage = () => {
       <p className="text-lg text-center mb-8">We will use AI to understand your data and summarize it</p>
 
       <div className="flex justify-center gap-8">
-        <div className={`card border border-orange-500 p-8 text-center ${selectedMediaType === 'audio' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('audio')}>
+        <div className={`card border border-black-500 p-8 text-center ${selectedMediaType === 'audio' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('audio')}>
           <Image src="/assets/volume.png" width={128} height={128} className="mx-auto" />
           <h2 className="text-xl font-semibold mt-4 px-14 text-black">Audio</h2>
         </div>
 
-        <div className={`card border border-orange-500 p-8 text-center ${selectedMediaType === 'video' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('video')}>
+        <div className={`card border border-black-500 p-8 text-center ${selectedMediaType === 'video' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('video')}>
           <Image src="/assets/youtube.png" width={128} height={128} className="mx-auto" />
           <h2 className="text-xl font-semibold mt-4 px-14 text-black">Video</h2>
         </div>
 
-        <div className={`card border border-orange-500 p-8 text-center ${selectedMediaType === 'pdf' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('pdf')}>
+        <div className={`card border border-black-500 p-8 text-center ${selectedMediaType === 'pdf' ? 'bg-gray-200' : ''}`} onClick={() => handleCardClick('pdf')}>
           <Image src="/assets/pdf.png" width={128} height={128} className="mx-auto" />
           <h2 className="text-xl font-semibold mt-4 px-14 text-black">PDF</h2>
         </div>
