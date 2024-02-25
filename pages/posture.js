@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import * as posenet from "@tensorflow-models/posenet";
+// import * as posenet from "@tensorflow-models/posenet";
+import * as poseDetection from '@tensorflow-models/pose-detection';
 import Webcam from "react-webcam";
 import { drawKeypoints, drawSkeleton } from "./options";
+import '@tensorflow/tfjs-backend-webgl';
 
 export default function PostureDetector() {
   const webcamRef = useRef(null);
@@ -30,10 +32,11 @@ export default function PostureDetector() {
 
   const evaluatePosture = (pose) => {
     if (goodPosturePosition.current === null) {
-      goodPosturePosition.current = pose.keypoints[2].position.y;
+      goodPosturePosition.current = pose.keypoints[2].y;
       setPostureFeedback("Good Posture");
     } else {
-      if (Math.abs(pose.keypoints[2].position.y - goodPosturePosition.current) > 150) {
+      console.log(pose.keypoints[2].y - goodPosturePosition.current);
+      if (Math.abs(pose.keypoints[2].y - goodPosturePosition.current) > 50) {
         setPostureFeedback("Bad Posture");
         startBadPostureTimer();
       } else {
@@ -43,7 +46,7 @@ export default function PostureDetector() {
     }
   };
 
-  const detectWebcamFeed = async (posenet_model) => {
+  const detectWebcamFeed = async (detector) => {
     if (webcamRef.current && webcamRef.current.video.readyState === 4) {
       const video = webcamRef.current.video;
       const videoWidth = video.videoWidth;
@@ -52,23 +55,24 @@ export default function PostureDetector() {
       video.width = videoWidth;
       video.height = videoHeight;
 
-      const pose = await posenet_model.estimateSinglePose(video);
-      drawResult(pose, video, videoWidth, videoHeight, canvasRef);
+      const pose = await detector.estimatePoses(video);
+      drawResult(pose[0], video, videoWidth, videoHeight, canvasRef);
 
-      evaluatePosture(pose); // Evaluate the user's posture
+      evaluatePosture(pose[0]); // Evaluate the user's posture
     }
   };
 
   const runPosenet = async () => {
-    const posenet_model = await posenet.load(
-      {
-      inputResolution: { width: 640, height: 480 },
-      scale: 0.8
-    }
+    const detectorConfig = {
+      modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+    };
+    const detector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      detectorConfig  
     );
 
     interval = setInterval(() => {
-      detectWebcamFeed(posenet_model);
+      detectWebcamFeed(detector);
     }, 100);
   };
 
@@ -92,11 +96,13 @@ export default function PostureDetector() {
 
   const drawResult = (pose, video, videoWidth, videoHeight, canvas) => {
     if (!canvas || !canvas.current) return;
+    if (!pose && !pose.keypoints && pose.keypoints.length <= 0) return;
     const ctx = canvas.current.getContext("2d");
     canvas.current.width = videoWidth;
     canvas.current.height = videoHeight;
+    console.log(pose.keypoints)
     drawKeypoints(pose.keypoints, 0.6, ctx);
-    drawSkeleton(pose.keypoints, 0.7, ctx);
+    // drawSkeleton(pose.keypoints, 0.7, ctx);
   };
 
   return (

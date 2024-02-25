@@ -1,5 +1,5 @@
-import * as posenet from "@tensorflow-models/posenet";
-import * as tf from "@tensorflow/tfjs";
+import * as poseDetection from '@tensorflow-models/pose-detection';
+import '@tensorflow/tfjs-backend-webgl';
 
 const color = "aqua";
 const boundingBoxColor = "red";
@@ -86,23 +86,36 @@ export function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
 /**
  * Draws a pose skeleton by looking up all adjacent keypoints/joints
  */
-export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1) {
-  const adjacentKeyPoints = posenet.getAdjacentKeyPoints(
-    keypoints,
-    minConfidence
-  );
+/**
+ * Draw the skeleton of a body on the video.
+ * @param keypoints A list of keypoints.
+ */
+export function drawSkeleton(keypoints: any, poseId: any, ctx: any) {
+  // Each poseId is mapped to a color in the color palette.
+  const color = 'White';
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
 
-  adjacentKeyPoints.forEach((keypoints) => {
-    drawSegment(
-      toTuple(keypoints[0].position),
-      toTuple(keypoints[1].position),
-      color,
-      scale,
-      ctx
-    );
-  });
+  poseDetection.util
+    .getAdjacentPairs(poseDetection.SupportedModels.MoveNet)
+    .forEach(([i, j]) => {
+      const kp1 = keypoints[i];
+      const kp2 = keypoints[j];
+
+      // If score is null, just show the keypoint.
+      const score1 = kp1.score != null ? kp1.score : 1;
+      const score2 = kp2.score != null ? kp2.score : 1;
+      const scoreThreshold = 0.3 || 0;
+
+      if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
+        ctx.beginPath();
+        ctx.moveTo(kp1.x, kp1.y);
+        ctx.lineTo(kp2.x, kp2.y);
+        ctx.stroke();
+      }
+    });
 }
-
 /**
  * Draw pose keypoints onto a canvas
  */
@@ -114,28 +127,11 @@ export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
       continue;
     }
 
-    const { y, x } = keypoint.position;
+    // const { y, x } = keypoint;
+    const y = keypoint.y;
+    const x = keypoint.x;
     drawPoint(ctx, y * scale, x * scale, 3, color);
   }
-}
-
-/**
- * Draw the bounding box of a pose. For example, for a whole person standing
- * in an image, the bounding box will begin at the nose and extend to one of
- * ankles
- */
-export function drawBoundingBox(keypoints, ctx) {
-  const boundingBox = posenet.getBoundingBox(keypoints);
-
-  ctx.rect(
-    boundingBox.minX,
-    boundingBox.minY,
-    boundingBox.maxX - boundingBox.minX,
-    boundingBox.maxY - boundingBox.minY
-  );
-
-  ctx.strokeStyle = boundingBoxColor;
-  ctx.stroke();
 }
 
 /**
@@ -171,35 +167,3 @@ export function renderImageToCanvas(image, size, canvas) {
   ctx.drawImage(image, 0, 0);
 }
 
-/**
- * Draw heatmap values, one of the model outputs, on to the canvas
- * Read our blog post for a description of PoseNet's heatmap outputs
- * https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5
- */
-export function drawHeatMapValues(heatMapValues, outputStride, canvas) {
-  const ctx = canvas.getContext("2d");
-  const radius = 5;
-  const scaledValues = heatMapValues.mul(tf.scalar(outputStride, "int32"));
-
-  drawPoints(ctx, scaledValues, radius, color);
-}
-
-/**
- * Used by the drawHeatMapValues method to draw heatmap points on to
- * the canvas
- */
-function drawPoints(ctx, points, radius, color) {
-  const data = points.buffer().values;
-
-  for (let i = 0; i < data.length; i += 2) {
-    const pointY = data[i];
-    const pointX = data[i + 1];
-
-    if (pointX !== 0 && pointY !== 0) {
-      ctx.beginPath();
-      ctx.arc(pointX, pointY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-  }
-}

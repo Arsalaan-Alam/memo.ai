@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^3.0.0",
-    "@tensorflow-models/posenet": "2.2.1",
-    "@tensorflow/tfjs": "2.6.0",
+    "@tensorflow-models/pose-detection": "^0.0.6",
+    "@tensorflow/tfjs-backend-webgl": "^3.11.0",
     "@types/node": "^20.11.20",
     "autoprefixer": "^10.4.12",
     "framer-motion": "6.0.0",
