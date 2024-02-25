@@ -145,6 +145,7 @@ export default function OutputPDF() {
 
   const handleSendMessage = async () => {
     console.log(conversationHistory)
+    setLoading(true)
     try {
       // Add user message to conversation history
       const response = await fetch('http://34.133.82.6:8007/run_conversation', {
@@ -172,7 +173,8 @@ export default function OutputPDF() {
     } catch (error) {
       setError('An error occurred while sending message.');
     } finally {
-      setNotesLoading(false)
+      setLoading(false)
+      
 
     }
   };
