@@ -199,7 +199,7 @@ export default function OutputPDF() {
         {/* Buttons for View Notes and View Transcript */}
         {notesLoading && (
           <div className="left-0 w-full h-full mt-12 flex justify-center">
-            <Typewriter text='Loading Notes...' />
+            <Typewriter text='Generating Notes...' />
           </div>
         )}
         {/* Display Notes in a fixed-height scrollable div */}
