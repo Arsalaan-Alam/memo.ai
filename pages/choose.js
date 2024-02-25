@@ -13,18 +13,41 @@ const ChoosePage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!mediaLink.trim()) {
+    if (selectedMediaType !== 'pdf' && !mediaLink.trim()) {
       alert('Please enter a valid media link.');
       return;
     }
+    // Check if the submitted media type is a video or not
+    const isVideo = selectedMediaType !== 'pdf';
   
-    // Navigate to output.js with the media link as a query parameter
-    console.log(mediaLink.trim())
-    router.push({
-      pathname: '/output',
-      query: { mediaLink: mediaLink.trim() }
-    });
+    // If it's a video, navigate to output.js
+    if (isVideo) {
+      router.push({
+        pathname: '/output',
+        query: { mediaLink: mediaLink.trim() }
+      });
+    } else {
+      // If it's not a video (i.e., PDF), navigate to output_pdf.js
+      const fileInput = document.querySelector('input[type="file"]');
+      const file = fileInput.files[0];
+  
+      if (!file) {
+        alert('Please select a PDF file.');
+        return;
+      }
+  
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result.split(',')[1]; // Extract base64 data
+        router.push({
+          pathname: '/output_pdf',
+          query: { mediaData: base64String }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-cover bg-center text-white" style={{backgroundImage: "url('/assets/background.jpg')"}}> 
@@ -49,18 +72,19 @@ const ChoosePage = () => {
       </div>
 
       {(selectedMediaType === 'audio' || selectedMediaType === 'video') && (
-        <div className="mt-8">
-          <input type="text" placeholder="Enter Media Link" className="border border-gray-300 rounded px-4 py-2 mr-4 focus:outline-none focus:border-blue-500 bg-white text-black" value={mediaLink} onChange={(e) => setMediaLink(e.target.value)} />
-          <button onClick={handleSubmit} className="bg-green-500 text-white px-4 py-2 rounded focus:outline-none bg-white-200 font-semibold" disabled={loading}>
-            {loading ? 'Loading...' : 'Submit'}
-          </button>
-        </div>
-      )}
+  <div className="mt-8 flex items-center w-full md:w-3/4 lg:w-1/2 xl:w-1/3">
+    <input type="text" placeholder="Enter Media Link" className="flex-1 border border-gray-300 rounded px-4 py-2 mr-4 focus:outline-none focus:border-blue-500 bg-white text-black" value={mediaLink} onChange={(e) => setMediaLink(e.target.value)} />
+    <button onClick={handleSubmit} className="text-white font-semibold py-2 px-4 rounded text-white-500 bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white" disabled={loading}>
+      {loading ? 'Loading...' : 'Submit'}
+    </button>
+  </div>
+)}
+
 
       {selectedMediaType === 'pdf' && (
         <div className="mt-8">
           <input type="file" accept=".pdf" className="border border-gray-300 rounded px-4 py-2 mr-4 focus:outline-none focus:border-blue-500 bg-white text-black" disabled={loading} />
-          <button onClick={handleSubmit} className="bg-green-500 text-white px-4 py-2 rounded focus:outline-none font-semibold" disabled={loading}>
+          <button onClick={handleSubmit} className="text-white font-semibold py-2 px-4 rounded text-white-500 mt-5 bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white" disabled={loading}>
             {loading ? 'Loading...' : 'Submit'}
           </button>
         </div>
