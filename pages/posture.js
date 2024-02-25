@@ -4,22 +4,26 @@ import Webcam from "react-webcam";
 import { drawKeypoints, drawSkeleton } from "./options";
 import '@tensorflow/tfjs-backend-webgl';
 
+
 export default function PostureDetector() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [postureFeedback, setPostureFeedback] = useState("");
-  const [studySessionTime, setStudySessionTime] = useState(0);
-  const studyTimerRef = useRef(null);
+  const [timer, setTimer] = useState(0);
+  const [pomodoroMode, setPomodoroMode] = useState('work'); // 'work' or 'break'
+  const [pomodoroDuration, setPomodoroDuration] = useState(25 * 60); // Default to 25 minutes
+  const timerRef = useRef(null);
   const goodPosturePosition = useRef(null);
   const badPostureTimer = useRef(null);
-    // Ref to store the preloaded model
   const poseDetectorRef = useRef(null);
+  const BAD_POSTURE_THRESHOLD = 2; // 2 seconds
+  const GOOD_POSTURE_THRESHOLD = 50; // 50 pixels
+  let interval;
 
-    // Preload the PoseNet model
   useEffect(() => {
     const loadModel = async () => {
-      console.log("Loading PoseNet model")
+      console.log("Loading PoseNet model");
       const detectorConfig = {
         modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
       };
@@ -32,21 +36,32 @@ export default function PostureDetector() {
   }, []);
   
 
-  let interval; // To hold the interval ID
-  const BAD_POSTURE_THRESHOLD = 2; // 3 seconds
-
   useEffect(() => {
-    let interval;
     if (isCapturing) {
-      studyTimerRef.current = Date.now(); // Start the study session timer
-      interval = setInterval(() => {
-        setStudySessionTime((prevTime) => prevTime + 1);
-      }, 1000); // Update every second
-    } else if (!isCapturing && studyTimerRef.current) {
-      clearInterval(interval);
+      timerRef.current = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (pomodoroMode === 'work' && prevTimer < pomodoroDuration) {
+            return prevTimer + 1;
+          } 
+          else {
+            setPomodoroMode((prevMode) => (prevMode === 'work' ? 'break' : 'work'));
+            return 0;
+          }
+        });
+      }, 1000);
+    } else {
+      clearInterval(timerRef.current);
     }
-    return () => clearInterval(interval);
-  }, [isCapturing]);
+    return () => clearInterval(timerRef.current);
+  }, [isCapturing, pomodoroMode, pomodoroDuration]);
+
+  const toggleCapture = () => {
+    setIsCapturing(!isCapturing);
+    if (!isCapturing) {
+      setTimer(0);
+      setPomodoroMode('work');
+    }
+  };
 
   const beep = (freq = 520, duration = 200*1, vol = 100) => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -67,12 +82,6 @@ export default function PostureDetector() {
   const startBadPostureTimer = () => {
     if (!badPostureTimer.current) {
       badPostureTimer.current = Date.now();
-    }
-  };
-  const toggleCapture = () => {
-    setIsCapturing(!isCapturing);
-    if (!isCapturing) {
-      setStudySessionTime(0); 
     }
   };
 
@@ -97,7 +106,7 @@ export default function PostureDetector() {
       setPostureFeedback("Good Posture");
     } else {
       console.log(pose.keypoints[2].y - goodPosturePosition.current);
-      if (Math.abs(pose.keypoints[2].y - goodPosturePosition.current) > 50) {
+      if (Math.abs(pose.keypoints[2].y - goodPosturePosition.current) > GOOD_POSTURE_THRESHOLD) {
         setPostureFeedback("Bad Posture");
         checkAndAlertBadPosture(); // Check duration and alert before resetting if posture is good now
         startBadPostureTimer();
@@ -167,6 +176,16 @@ export default function PostureDetector() {
     drawSkeleton(pose.keypoints, 0.7, ctx);
   };
 
+  const handleDurationChange = (event) => {
+    setPomodoroDuration(Number(event.target.value) * 60);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-5">
       <header className="text-center mb-8">
@@ -186,20 +205,28 @@ export default function PostureDetector() {
         ) : null}
         <div className="space-x-4 mt-4">
           <button
-            className={`px-4 py-2 text-white rounded ${isCapturing ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+            className={`px-4 py-2 text-white rounded ${isCapturing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
             onClick={toggleCapture}
           >
             {isCapturing ? "Pause" : "Start"} Session
           </button>
+          <select
+            className="px-4 py-2 rounded"
+            onChange={handleDurationChange}
+            defaultValue={25}
+          >
+            <option value="25">25 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+          </select>
         </div>
         <div className="mt-4">
-          {
-            postureFeedback && (
-              <div>Posture Status: {postureFeedback}</div>
-            )
-          }
+          {postureFeedback && <div>Posture Status: {postureFeedback}</div>}
           <div className="text-lg font-semibold">
-            Session Time: {new Date(studySessionTime * 1000).toISOString().substr(11, 8)}
+            Time: {formatTime(timer)}
+          </div>
+          <div className="text-lg font-semibold">
+          Total Duration: {formatTime(pomodoroDuration)}
           </div>
         </div>
       </header>
