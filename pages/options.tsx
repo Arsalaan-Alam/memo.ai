@@ -2,7 +2,6 @@ import * as poseDetection from '@tensorflow-models/pose-detection';
 import '@tensorflow/tfjs-backend-webgl';
 
 const color = "aqua";
-const boundingBoxColor = "red";
 const lineWidth = 2;
 
 export const tryResNetButtonName = "tryResNetButton";
