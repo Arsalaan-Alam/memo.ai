@@ -2,7 +2,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import gfm from 'remark-gfm';
 
 
 const OutputPage = () => {
