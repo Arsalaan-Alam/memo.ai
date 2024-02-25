@@ -215,9 +215,8 @@ const OutputPage = () => {
   {/* Display Notes in a fixed-height scrollable div */}
   {notesVisible && (
   <div className="mt-10 ml-20 mr-20">
-    <h1 className="text-xl font-bold mb-4 text-white">Notes</h1>
-    <div className="overflow-y-auto bg-gray-800 rounded-lg shadow-lg p-4 text-gray-200">
-      <ReactMarkdown>{notes.notes}</ReactMarkdown>
+    <div className="notes overflow-y-auto bg-gray-800 rounded-lg shadow-lg p-4 text-gray-200">
+      <ReactMarkdown className="mx-6">{notes.notes}</ReactMarkdown>
     </div>
   </div>
 )}

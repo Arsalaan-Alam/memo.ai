@@ -4,3 +4,37 @@
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+
+/* all ul, li inside notes */
+.notes ul, .notes ol {
+    list-style: disc;
+    margin-bottom: 1rem;
+  }
+  .notes li {
+    list-style: disc;
+  }
+/* same for h1, h2, h3 inside notes */
+.notes h1, .notes h2, .notes h3 {
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    
+    margin-bottom: 1rem;
+  }
+
+  /* sizes for h1 h2 h3 */
+  .notes h1 {
+    font-size: 2em;
+  }
+  .notes h2 {
+    font-size: 1.5em;
+  }
+  .notes h3 {
+    font-size: 1em;
+  }
+.notes p{
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}

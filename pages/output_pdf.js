@@ -207,8 +207,7 @@ export default function OutputPDF() {
           <MathJaxContext>
 
             <div className="mt-10 h-80 ml-20 mr-20">
-              <h1 className="text-xl font-bold mb-4 text-white">Notes</h1>
-              <div className="overflow-y-auto text-white pb-20" >
+              <div className="notes overflow-y-auto text-white pb-20" >
                 <MathJax dynamic hideUntilTypeset="every">
                   <Markdown>{notes.notes}</Markdown >
                 </MathJax>
