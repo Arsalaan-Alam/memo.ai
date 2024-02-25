@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const New = () => {
     const [dynamicTextIndex, setDynamicTextIndex] = useState(0);
-    const dynamicTexts = ["research paper", "article", "video", "audio", "philosophy paper", "blog", "lecture"];
+    const dynamicTexts = ["research paper", "textbook chapter", "article", "video", "audio", "philosophy paper", "blog", "lecture"];
 
     useEffect(() => {
         const interval = setInterval(() => {
