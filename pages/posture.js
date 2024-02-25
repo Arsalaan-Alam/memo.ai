@@ -3,6 +3,7 @@ import * as poseDetection from '@tensorflow-models/pose-detection';
 import Webcam from "react-webcam";
 import { drawKeypoints, drawSkeleton } from "./options";
 import '@tensorflow/tfjs-backend-webgl';
+import Link from "next/link";
 
 
 export default function PostureDetector() {
@@ -189,8 +190,21 @@ export default function PostureDetector() {
   };
 
  return (
+    <div> <nav className="bg-cover" style={{ backgroundImage: "url('/assets/background.jpg')" }} >
+    <div className='mx-auto w-70vw py-4 px-6 flex justify-between items-center sticky max-w-7xl'>
+    <img src="/assets/mainlogo.png" alt="memo.ai" className="h-10 mt-4" />
+    <Link href="/choose">
+        <button className="text-white font-medium py-2 px-12 mt-4 rounded text-white-500transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white" style={{ backgroundColor: "white", color:"#01214F" }}>
+            Make Notes
+        </button>
+    </Link>
+    </div>
+</nav>
+
   <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-5 bg-cover bg-center" style={{ backgroundImage: "url('/assets/background.jpg')" }}>
+    
     <header className="text-center mb-8">
+   
       {
         // just show calibarting if the goodPosturePosition is null and isCapturing is true
         goodPosturePosition.current === null && isCapturing ? (
@@ -240,6 +254,7 @@ export default function PostureDetector() {
         </div>
       </div>
     </header>
+  </div>
   </div>
 );
 

@@ -2,6 +2,8 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
+
 
 const OutputPage = () => {
   const router = useRouter();
@@ -125,7 +127,9 @@ const OutputPage = () => {
   
       if (response.ok) {
         const data = await response.json();
+        
         setNotes(data);
+        
         console.log('Notes created successfully');
         setNotesVisible(true);
       } else {
@@ -186,12 +190,12 @@ const OutputPage = () => {
     return match && match[1];
   };
 
- 
+ console.log(notes.notes)
 
   return (
     <div className="flex bg-cover bg-center" style={{backgroundColor: '#1B1F29'}}>
       {/* Left Section */}
-      <div className="w-2/3 p-4 overflow-y-auto h-screen">
+      <div className="w-2/3 p-4 overflow-y-auto h-screen" style={{ '-ms-overflow-style': 'none', 'scrollbar-width': 'none', 'overflow': '-moz-scrollbars-none' }}>
   {/* Embed YouTube Video */}
   <iframe
     width="90%"
@@ -206,18 +210,21 @@ const OutputPage = () => {
   {/* Buttons for View Notes and View Transcript */}
   {notesLoading && (
       <div className="left-0 w-full h-full mt-12 flex justify-center">
-        <Typewriter text={transcriptLoading ? 'Loading Transcript...' : 'Loading Notes...'} />
+        <Typewriter text={transcriptLoading ? 'Generating Transcript...' : 'Generating Notes...'} />
       </div>
     )}
   {/* Display Notes in a fixed-height scrollable div */}
   {notesVisible && (
-    <div className="mt-10 h-80 ml-20 mr-20">
-      <h1 className="text-xl font-bold mb-4 text-white">Notes</h1>
-      <div className="overflow-y-auto text-white pb-20">
-        <ReactMarkdown>{notes.notes}</ReactMarkdown>
-      </div>
+  <div className="mt-10 ml-20 mr-20">
+    <h1 className="text-xl font-bold mb-4 text-white">Notes</h1>
+    <div className="overflow-y-auto bg-gray-800 rounded-lg shadow-lg p-4 text-gray-200">
+      <ReactMarkdown>{notes.notes}</ReactMarkdown>
     </div>
-  )}
+  </div>
+)}
+
+
+
 </div>
 
   
