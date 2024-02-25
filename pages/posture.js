@@ -147,5 +147,9 @@ export default function PostureDetector() {
       </header>
     </div>
   );
+<<<<<<< Updated upstream
+}
+>>>>>>> Stashed changes
+=======
 }
 >>>>>>> Stashed changes
