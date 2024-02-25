@@ -53,7 +53,9 @@ const New = () => {
                 <div className="flex flex-col items-center mt-8">
                     <h1 className="text-6xl font-bold text-white mb-4" style={{ color: '#40B966' }}>Join Our Study Room.</h1>
                     <h1 className="text-5xl font-bold text-white mb-4" >Improve Posture & Boost Productivity.</h1>
+                    <Link href='/posture'>
                     <button className='text-white font-medium py-2 px-12 rounded text-white-500 mt-5 bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white'>Start Session</button>
+                    </Link>
                     <img src="/assets/timer.png" alt="Timer" className="h-200 mt-20 mb-20" />
                 </div>
             )}
