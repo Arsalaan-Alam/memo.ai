@@ -19,6 +19,7 @@ export default function PostureDetector() {
   const poseDetectorRef = useRef(null);
   const BAD_POSTURE_THRESHOLD = 2; // 2 seconds
   const GOOD_POSTURE_THRESHOLD = 50; // 50 pixels
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
   let interval;
 
   useEffect(() => {
@@ -35,9 +36,8 @@ export default function PostureDetector() {
     loadModel();
   }, []);
   
-
   useEffect(() => {
-    if (isCapturing) {
+    if (isCapturing && isTimerRunning) {
       timerRef.current = setInterval(() => {
         setTimer((prevTimer) => {
           if (pomodoroMode === 'work' && prevTimer < pomodoroDuration) {
@@ -53,15 +53,17 @@ export default function PostureDetector() {
       clearInterval(timerRef.current);
     }
     return () => clearInterval(timerRef.current);
-  }, [isCapturing, pomodoroMode, pomodoroDuration]);
+  }, [isCapturing, isTimerRunning, pomodoroMode, pomodoroDuration]);
 
   const toggleCapture = () => {
     setIsCapturing(!isCapturing);
+    setIsTimerRunning(true); // Start the timer when capturing starts
     if (!isCapturing) {
       setTimer(0);
       setPomodoroMode('work');
     }
   };
+  
 
   const beep = (freq = 520, duration = 200*1, vol = 100) => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -208,8 +210,9 @@ export default function PostureDetector() {
           className={`px-4 py-2 text-white rounded ${isCapturing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
           onClick={toggleCapture}
         >
-          {isCapturing ? "Pause" : "Start"} Session
+          {isCapturing ? "Stop" :  "Start"} Session
         </button>
+
         <select
           className="px-4 py-2 rounded text-gray-800 bg-white dark:bg-gray-700 dark:text-white"
           onChange={handleDurationChange}
@@ -220,7 +223,7 @@ export default function PostureDetector() {
           <option value="60">60 minutes</option>
         </select>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 rounded text-gray-800  dark:text-white">
         {postureFeedback && <div>Posture Status: {postureFeedback}</div>}
         <div className="text-xl font-semibold text-gray-200">
           Time: {formatTime(timer)}
