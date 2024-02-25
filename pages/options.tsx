@@ -1,141 +1,205 @@
-import React, { useState, useEffect, useRef } from "react";
 import * as posenet from "@tensorflow-models/posenet";
-import Webcam from "react-webcam";
-import { drawKeypoints, drawSkeleton } from "./options";
+import * as tf from "@tensorflow/tfjs";
 
-export default function PostureDetector() {
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const [postureFeedback, setPostureFeedback] = useState("");
-  const [badPostureDuration, setBadPostureDuration] = useState(0);
-  const goodPosturePosition = useRef(null);
-  const badPostureTimer = useRef(null);
+const color = "aqua";
+const boundingBoxColor = "red";
+const lineWidth = 2;
 
-  let interval; // To hold the interval ID
+export const tryResNetButtonName = "tryResNetButton";
+export const tryResNetButtonText = "[New] Try ResNet50";
+const tryResNetButtonTextCss = "width:100%;text-decoration:underline;";
+const tryResNetButtonBackgroundCss = "background:#e61d5f;";
 
-  const startBadPostureTimer = () => {
-    if (!badPostureTimer.current) {
-      badPostureTimer.current = Date.now();
-    }
-  };
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
 
-  const resetBadPostureTimer = () => {
-    if (badPostureTimer.current) {
-      const duration = (Date.now() - badPostureTimer.current) / 1000; // Convert to seconds
-      setBadPostureDuration((prev) => prev + duration);
-      badPostureTimer.current = null; // Reset the timer
-    }
-  };
+function isiOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 
-  const evaluatePosture = (pose) => {
-    if (goodPosturePosition.current === null) {
-      goodPosturePosition.current = pose.keypoints[2].position.y;
-      setPostureFeedback("Good Posture");
-    } else {
-      if (Math.abs(pose.keypoints[2].position.y - goodPosturePosition.current) > 150) {
-        setPostureFeedback("Bad Posture");
-        startBadPostureTimer();
-      } else {
-        setPostureFeedback("Good Posture");
-        resetBadPostureTimer();
+export function isMobile() {
+  return isAndroid() || isiOS();
+}
+
+function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = "") {
+  var spans = document.getElementsByClassName("property-name");
+  for (var i = 0; i < spans.length; i++) {
+    var text = spans[i].textContent || spans[i].innerText;
+    if (text == propertyText) {
+      spans[i].parentNode.parentNode.style = liCssString;
+      if (spanCssString !== "") {
+        spans[i].style = spanCssString;
       }
     }
-  };
+  }
+}
 
-  const detectWebcamFeed = async (posenet_model) => {
-    if (webcamRef.current && webcamRef.current.video.readyState === 4) {
-      const video = webcamRef.current.video;
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
-
-      video.width = videoWidth;
-      video.height = videoHeight;
-
-      const pose = await posenet_model.estimateSinglePose(video);
-      drawResult(pose, video, videoWidth, videoHeight, canvasRef);
-
-      evaluatePosture(pose); // Evaluate the user's posture
-    }
-  };
-
-  const runPosenet = async () => {
-    const posenet_model = await posenet.load({
-      architecture: 'MobileNetV1',
-      outputStride: 16,
-      inputResolution: { width: 640, height: 480 },
-      multiplier: 0.75,
-    });
-
-    interval = setInterval(() => {
-      detectWebcamFeed(posenet_model);
-    }, 100);
-  };
-
-  const stopPosenet = () => {
-    clearInterval(interval);
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    }
-    resetBadPostureTimer(); // Reset bad posture timer when capturing is stopped
-  };
-
-  useEffect(() => {
-    if (isCapturing) {
-      runPosenet();
-    } else {
-      stopPosenet();
-    }
-    return () => stopPosenet();
-  }, [isCapturing]);
-
-  const drawResult = (pose, video, videoWidth, videoHeight, canvas) => {
-    const ctx = canvas.current.getContext("2d");
-    canvas.current.width = videoWidth;
-    canvas.current.height = videoHeight;
-    drawKeypoints(pose.keypoints, 0.6, ctx);
-    drawSkeleton(pose.keypoints, 0.7, ctx);
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <header className="text-center mb-8">
-        {isCapturing ? (
-          <div className="relative">
-            <Webcam
-              ref={webcamRef}
-              className="rounded-lg"
-              style={{ maxWidth: "100%" }}
-            />
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 mx-auto rounded-lg"
-              style={{ maxWidth: "100%" }}
-            />
-          </div>
-        ) : null}
-        <div className="space-x-4">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={() => setIsCapturing(true)}
-          >
-            Start Capturing
-          </button>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            onClick={() => setIsCapturing(false)}
-          >
-            Stop Capturing
-          </button>
-        </div>
-        <div className="mt-4">
-          <div>Posture Status: {postureFeedback}</div>
-          {badPostureDuration > 0 && (
-            <div>Bad Posture Duration: {badPostureDuration.toFixed(2)} seconds</div>
-          )}
-        </div>
-      </header>
-    </div>
+export function updateTryResNetButtonDatGuiCss() {
+  setDatGuiPropertyCss(
+    tryResNetButtonText,
+    tryResNetButtonBackgroundCss,
+    tryResNetButtonTextCss
   );
+}
+
+/**
+ * Toggles between the loading UI and the main canvas UI.
+ */
+export function toggleLoadingUI(
+  showLoadingUI,
+  loadingDivId = "loading",
+  mainDivId = "main"
+) {
+  if (showLoadingUI) {
+    document.getElementById(loadingDivId).style.display = "block";
+    document.getElementById(mainDivId).style.display = "none";
+  } else {
+    document.getElementById(loadingDivId).style.display = "none";
+    document.getElementById(mainDivId).style.display = "block";
+  }
+}
+
+function toTuple({ y, x }) {
+  return [y, x];
+}
+
+export function drawPoint(ctx, y, x, r, color) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+/**
+ * Draws a line on a canvas, i.e. a joint
+ */
+export function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
+  ctx.beginPath();
+  ctx.moveTo(ax * scale, ay * scale);
+  ctx.lineTo(bx * scale, by * scale);
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+}
+
+/**
+ * Draws a pose skeleton by looking up all adjacent keypoints/joints
+ */
+export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1) {
+  const adjacentKeyPoints = posenet.getAdjacentKeyPoints(
+    keypoints,
+    minConfidence
+  );
+
+  adjacentKeyPoints.forEach((keypoints) => {
+    drawSegment(
+      toTuple(keypoints[0].position),
+      toTuple(keypoints[1].position),
+      color,
+      scale,
+      ctx
+    );
+  });
+}
+
+/**
+ * Draw pose keypoints onto a canvas
+ */
+export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
+  for (let i = 0; i < keypoints.length; i++) {
+    const keypoint = keypoints[i];
+
+    if (keypoint.score < minConfidence) {
+      continue;
+    }
+
+    const { y, x } = keypoint.position;
+    drawPoint(ctx, y * scale, x * scale, 3, color);
+  }
+}
+
+/**
+ * Draw the bounding box of a pose. For example, for a whole person standing
+ * in an image, the bounding box will begin at the nose and extend to one of
+ * ankles
+ */
+export function drawBoundingBox(keypoints, ctx) {
+  const boundingBox = posenet.getBoundingBox(keypoints);
+
+  ctx.rect(
+    boundingBox.minX,
+    boundingBox.minY,
+    boundingBox.maxX - boundingBox.minX,
+    boundingBox.maxY - boundingBox.minY
+  );
+
+  ctx.strokeStyle = boundingBoxColor;
+  ctx.stroke();
+}
+
+/**
+ * Converts an arary of pixel data into an ImageData object
+ */
+export async function renderToCanvas(a, ctx) {
+  const [height, width] = a.shape;
+  const imageData = new ImageData(width, height);
+
+  const data = await a.data();
+
+  for (let i = 0; i < height * width; ++i) {
+    const j = i * 4;
+    const k = i * 3;
+
+    imageData.data[j + 0] = data[k + 0];
+    imageData.data[j + 1] = data[k + 1];
+    imageData.data[j + 2] = data[k + 2];
+    imageData.data[j + 3] = 255;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+/**
+ * Draw an image on a canvas
+ */
+export function renderImageToCanvas(image, size, canvas) {
+  canvas.width = size[0];
+  canvas.height = size[1];
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(image, 0, 0);
+}
+
+/**
+ * Draw heatmap values, one of the model outputs, on to the canvas
+ * Read our blog post for a description of PoseNet's heatmap outputs
+ * https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5
+ */
+export function drawHeatMapValues(heatMapValues, outputStride, canvas) {
+  const ctx = canvas.getContext("2d");
+  const radius = 5;
+  const scaledValues = heatMapValues.mul(tf.scalar(outputStride, "int32"));
+
+  drawPoints(ctx, scaledValues, radius, color);
+}
+
+/**
+ * Used by the drawHeatMapValues method to draw heatmap points on to
+ * the canvas
+ */
+function drawPoints(ctx, points, radius, color) {
+  const data = points.buffer().values;
+
+  for (let i = 0; i < data.length; i += 2) {
+    const pointY = data[i];
+    const pointX = data[i + 1];
+
+    if (pointX !== 0 && pointY !== 0) {
+      ctx.beginPath();
+      ctx.arc(pointX, pointY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+  }
 }

@@ -60,12 +60,12 @@ export default function PostureDetector() {
   };
 
   const runPosenet = async () => {
-    const posenet_model = await posenet.load({
-      architecture: 'MobileNetV1',
-      outputStride: 16,
+    const posenet_model = await posenet.load(
+      {
       inputResolution: { width: 640, height: 480 },
-      multiplier: 0.75,
-    });
+      scale: 0.8
+    }
+    );
 
     interval = setInterval(() => {
       detectWebcamFeed(posenet_model);
@@ -91,6 +91,7 @@ export default function PostureDetector() {
   }, [isCapturing]);
 
   const drawResult = (pose, video, videoWidth, videoHeight, canvas) => {
+    if (!canvas || !canvas.current) return;
     const ctx = canvas.current.getContext("2d");
     canvas.current.width = videoWidth;
     canvas.current.height = videoHeight;
