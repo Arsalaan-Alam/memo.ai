@@ -97,6 +97,7 @@ export default function PostureDetector() {
       const duration = (Date.now() - badPostureTimer.current) / 1000;
       if (duration >= BAD_POSTURE_THRESHOLD) { // If bad posture duration is 3 seconds or more, beep
         beep(); 
+        alert("Please maintain posture!")
         resetBadPostureTimer();
       }
     }
