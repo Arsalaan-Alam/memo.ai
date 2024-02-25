@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown';
 const OutputPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
+  const [notesLoading, setNotesLoading] = useState(false)
   const [outputData, setOutputData] = useState(null);
   const [error, setError] = useState(null);
   const [transcript, setTranscript] = useState('');
@@ -14,6 +16,45 @@ const OutputPage = () => {
   const [notesVisible, setNotesVisible] = useState(false);
   const [userMessage, setUserMessage] = useState('');
   const [conversationHistory, setConversationHistory] = useState([]);
+  const Typewriter = ({ text }) => {
+    const [displayText, setDisplayText] = useState('');
+    const [forward, setForward] = useState(true);
+  
+    useEffect(() => {
+      let currentIndex = 0;
+      let interval;
+      
+      const typeText = () => {
+        interval = setInterval(() => {
+          setDisplayText(text.substring(0, currentIndex));
+          currentIndex++;
+          if (currentIndex > text.length) {
+            clearInterval(interval);
+            setTimeout(eraseText, 1000); // Wait for 1 second before erasing
+          }
+        }, 100); // Adjust the typing speed as needed
+      };
+  
+      const eraseText = () => {
+        interval = setInterval(() => {
+          setDisplayText(text.substring(0, currentIndex));
+          currentIndex--;
+          if (currentIndex === 0) {
+            clearInterval(interval);
+            setTimeout(typeText, 1000); // Wait for 1 second before typing again
+          }
+        }, 100); // Adjust the erasing speed as needed
+      };
+  
+      typeText();
+  
+      return () => clearInterval(interval);
+    }, [text]);
+  
+    return (
+      <p className="text-gray-500 text-3xl font-bold">{displayText}</p>
+    );
+  };
   
   console.log(router.query.mediaLink)
 
@@ -21,7 +62,8 @@ const OutputPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+        setTranscriptLoading(true);
+        setNotesLoading(true);
         const link = router.query.mediaLink;
         if (!link) {
           setError('No media link provided.');
@@ -44,13 +86,15 @@ const OutputPage = () => {
           setOutputData(data);
           const transcriptText = data.segments.map(segment => segment.text).join(' ');
           setTranscript(transcriptText);
+          // Call handleViewNotes to fetch and display notes
+          handleViewNotes();
         } else {
           setError('Failed to fetch data from the API.');
         }
       } catch (error) {
         setError('An error occurred while fetching data.');
       } finally {
-        setLoading(false);
+        setTranscriptLoading(false);
       }
     };
   
@@ -62,47 +106,49 @@ const OutputPage = () => {
     }
   }, [router.query.mediaLink, outputData]);
   
-
-  const handleViewTranscript = () => {
-    setVisibleTranscript(!visibleTranscript);
-  };
-
   const handleViewNotes = async () => {
-    if (notes === '') { 
-      try {
-        setLoading(true);
-        const response = await fetch('http://34.133.82.6:8007/create_notes', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            text: transcript
-          })
-        });
+    if (transcript === '') {
+      return; // Don't proceed if transcript is empty
+    }
   
-        if (response.ok) {
-          const data = await response.json();
-          setNotes(data);
-          console.log('Notes created successfully');
-          setNotesVisible(true);
-        } else {
-          setError('Failed to create notes.');
-        }
-      } catch (error) {
-        setError('An error occurred while creating notes.');
-      } finally {
-        setLoading(false);
+    try {
+      setNotesLoading(true);
+      const response = await fetch('http://34.133.82.6:8007/create_notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: transcript
+        })
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setNotes(data);
+        console.log('Notes created successfully');
+        setNotesVisible(true);
+      } else {
+        setError('Failed to create notes.');
       }
-    } else {
-      setNotesVisible(!notesVisible);
+    } catch (error) {
+      setError('An error occurred while creating notes.');
+    } finally {
+      setNotesLoading(false);
     }
   };
+  
+  useEffect(() => {
+    if (transcript !== '' && notes === '') {
+      handleViewNotes();
+    }
+  }, [transcript]);
+  
+  
 
   const handleSendMessage = async () => {
     console.log(conversationHistory)
     try {
-      setLoading(true);
       // Add user message to conversation history
       const response = await fetch('http://34.133.82.6:8007/run_conversation', {
         method: 'POST',
@@ -129,7 +175,8 @@ const OutputPage = () => {
     } catch (error) {
       setError('An error occurred while sending message.');
     } finally {
-      setLoading(false);
+      setNotesLoading(false)
+      
     }
   };
 
@@ -157,13 +204,16 @@ const OutputPage = () => {
     style={{ margin: '0 auto' }}
   ></iframe>
   {/* Buttons for View Notes and View Transcript */}
-  <button onClick={handleViewNotes} className="mt-4">{notesVisible ? 'Hide Notes' : 'View Notes'}</button>
-
+  {notesLoading && (
+      <div className="left-0 w-full h-full mt-12 flex justify-center">
+        <Typewriter text={transcriptLoading ? 'Loading Transcript...' : 'Loading Notes...'} />
+      </div>
+    )}
   {/* Display Notes in a fixed-height scrollable div */}
   {notesVisible && (
-    <div className="mt-4 h-80 ml">
+    <div className="mt-10 h-80 ml-20 mr-20">
       <h1 className="text-xl font-bold mb-4 text-white">Notes</h1>
-      <div className="overflow-y-auto text-white">
+      <div className="overflow-y-auto text-white pb-20">
         <ReactMarkdown>{notes.notes}</ReactMarkdown>
       </div>
     </div>
@@ -174,15 +224,15 @@ const OutputPage = () => {
       <div className="w-1/3 h-screen bg">
       <div className='p-4 h-full flex flex-col bg-gray-800' style={{backgroundColor: '#223446'}} >
       <h1 className="text-2xl font-bold mb-4 text-white mt-2">Chat with memo.ai</h1>
-        <div className="h-full overflow-y-auto mb-4">
+        <div className="h-full overflow-y-auto mb-4 mr-2 text-justify" style={{ '-ms-overflow-style': 'none', 'scrollbar-width': 'none', 'overflow': '-moz-scrollbars-none' }}>
           
           <div>
             {/* Display Conversation History if it's not undefined */}
             {conversationHistory && conversationHistory.map((message, index) => (
               <div key={index}>
                 {/* Assuming the first element is user message and the second is bot response */}
-                <p className='mb-2'><strong>User:</strong> {message[0]}</p>
-                <p className='mb-2'><strong>Bot:</strong> {message[1]}</p>
+                <p className='mb-2 text-gray-200'><strong>User:</strong> {message[0]}</p>
+                <p className='mb-2 text-gray-400'><strong>Bot:</strong> {message[1]}</p>
               </div>
             ))}
           </div>
