@@ -96,7 +96,7 @@ export default function PostureDetector() {
 
   const drawResult = (pose, video, videoWidth, videoHeight, canvas) => {
     if (!canvas || !canvas.current) return;
-    if (!pose && !pose.keypoints && pose.keypoints.length <= 0) return;
+    if (!pose || !pose.keypoints || pose.keypoints.length <= 0) return;
     const ctx = canvas.current.getContext("2d");
     canvas.current.width = videoWidth;
     canvas.current.height = videoHeight;
