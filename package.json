@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^3.0.0",
+    "@tensorflow-models/posenet": "2.2.1",
+    "@tensorflow/tfjs": "2.6.0",
+    "@types/node": "^20.11.20",
     "autoprefixer": "^10.4.12",
     "framer-motion": "6.0.0",
     "next": "^12.3.1",
@@ -20,8 +23,11 @@
     "react-markdown": "^9.0.1",
     "react-scroll": "^1.8.1",
     "react-slick": "^0.27.13",
+    "react-webcam": "^7.2.0",
     "slick-carousel": "^1.8.1",
-    "tailwindcss": "^3.1.8"
+    "tailwindcss": "^3.1.8",
+    "tensorflow-models": "^0.0.1",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "babel-plugin-inline-react-svg": "^1.1.2"

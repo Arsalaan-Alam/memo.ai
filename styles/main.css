@@ -4,3 +4,60 @@
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+/* General container styling for center alignment */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Adjust based on your UI design */
+}
+
+/* Styling for the camera and canvas container */
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px; /* Adjust spacing between camera and options */
+}
+
+/* Ensures the webcam and canvas are visually clear */
+.webcam, canvas {
+  border: 2px solid #000; /* Adds a border around the webcam and canvas */
+  max-width: 100%;
+  height: auto; /* Adjust the height based on the aspect ratio */
+}
+
+/* Option container styling for better UI */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid #ddd; /* Adds a light border around the options */
+  border-radius: 8px; /* Optional: adds rounded corners */
+}
+
+/* Button styling for better visibility */
+button {
+  background-color: #007bff; /* Bootstrap primary color, change as needed */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker shade for hover state */
+}
+
+/* Adjust this media query as needed for responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .camera-container, .options-container {
+    margin: 10px 0; /* Adjusts spacing in a stacked layout */
+  }
+}
