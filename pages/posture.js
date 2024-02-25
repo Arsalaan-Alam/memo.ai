@@ -102,7 +102,7 @@ export default function PostureDetector() {
     canvas.current.height = videoHeight;
     console.log(pose.keypoints)
     drawKeypoints(pose.keypoints, 0.6, ctx);
-    // drawSkeleton(pose.keypoints, 0.7, ctx);
+    drawSkeleton(pose.keypoints, 0.7, ctx);
   };
 
   return (
