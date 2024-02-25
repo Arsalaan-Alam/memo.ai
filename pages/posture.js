@@ -186,50 +186,51 @@ export default function PostureDetector() {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-5">
-      <header className="text-center mb-8">
-        {isCapturing ? (
-          <div className="relative">
-            <Webcam
-              ref={webcamRef}
-              className="rounded-lg shadow-xl"
-              style={{ maxWidth: "100%" }}
-            />
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 mx-auto rounded-lg shadow-xl"
-              style={{ maxWidth: "100%" }}
-            />
-          </div>
-        ) : null}
-        <div className="space-x-4 mt-4">
-          <button
-            className={`px-4 py-2 text-white rounded ${isCapturing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-            onClick={toggleCapture}
-          >
-            {isCapturing ? "Pause" : "Start"} Session
-          </button>
-          <select
-            className="px-4 py-2 rounded"
-            onChange={handleDurationChange}
-            defaultValue={25}
-          >
-            <option value="25">25 minutes</option>
-            <option value="45">45 minutes</option>
-            <option value="60">60 minutes</option>
-          </select>
+ return (
+  <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-5 bg-cover bg-center" style={{ backgroundImage: "url('/assets/background.jpg')" }}>
+    <header className="text-center mb-8">
+      {isCapturing ? (
+        <div className="relative">
+          <Webcam
+            ref={webcamRef}
+            className="rounded-lg shadow-xl"
+            style={{ maxWidth: "100%" }}
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 mx-auto rounded-lg shadow-xl"
+            style={{ maxWidth: "100%" }}
+          />
         </div>
-        <div className="mt-4">
-          {postureFeedback && <div>Posture Status: {postureFeedback}</div>}
-          <div className="text-lg font-semibold">
-            Time: {formatTime(timer)}
-          </div>
-          <div className="text-lg font-semibold">
+      ) : null}
+      <div className="space-x-4 mt-4">
+        <button
+          className={`px-4 py-2 text-white rounded ${isCapturing ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
+          onClick={toggleCapture}
+        >
+          {isCapturing ? "Pause" : "Start"} Session
+        </button>
+        <select
+          className="px-4 py-2 rounded text-gray-800 bg-white dark:bg-gray-700 dark:text-white"
+          onChange={handleDurationChange}
+          defaultValue={25}
+        >
+          <option value="25">25 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+      <div className="mt-4">
+        {postureFeedback && <div>Posture Status: {postureFeedback}</div>}
+        <div className="text-xl font-semibold text-gray-200">
+          Time: {formatTime(timer)}
+        </div>
+        <div className="text-gray-200 text-xl font-semibold">
           Total Duration: {formatTime(pomodoroDuration)}
-          </div>
         </div>
-      </header>
-    </div>
-  );
+      </div>
+    </header>
+  </div>
+);
+
 }

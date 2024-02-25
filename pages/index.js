@@ -29,11 +29,11 @@ const New = () => {
 
     return (
         <div className="bg-black bg-cover bg-center" style={{ backgroundImage: "url('/assets/background.jpg')" }}>
-            <nav className=" y" style={{ backgroundColor: "#C394FF" }}>
+            <nav className=" y" >
                 <div className='mx-auto w-70vw py-4 px-6 flex justify-between items-center sticky max-w-7xl'>
-                <img src="/assets/mainlogo.png" alt="memo.ai" className="h-10" />
+                <img src="/assets/mainlogo.png" alt="memo.ai" className="h-10 mt-4" />
                 <Link href="/choose">
-                    <button className="text-white font-medium py-2 px-12 rounded text-white-500transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white" style={{ backgroundColor: "#01214F" }}>
+                    <button className="text-white font-medium py-2 px-12 mt-4 rounded text-white-500transition duration-300 ease-in-out focus:outline-none focus:ring focus:border-white" style={{ backgroundColor: "white", color:"#01214F" }}>
                         Get Started
                     </button>
                 </Link>
@@ -47,10 +47,10 @@ const New = () => {
                     <h1 className="text-5xl font-bold text-white mt-4">Watch notes magically appear.</h1>
                     <h1 className='text-xl text-white mt-8'>Study smarter, faster, healthier with <span className='font-bold' style={{ color: '#40B966' }}>memo.ai</span></h1>
                     <Link href="/choose">
-                        <button className='text-white font-medium py-2 px-12 rounded text-white-500 mt-5 bg-green-700 transition duration-300 ease-in-out mb-20 focus:outline-none focus:ring focus:border-white'>Get Started</button>
+                        <button className='text-white font-medium py-2 px-12 rounded text-white-500 mt-5 bg-green-700 transition duration-300 ease-in-out mb-12 focus:outline-none focus:ring focus:border-white'>Get Started</button>
                     </Link>
                     <div className="flex justify-center mt-8">
-  <video autoPlay loop muted className="w-full md:w-2/3 mb-20">
+  <video autoPlay loop muted className="w-full md:w-2/3 mb-20" style={{width:700}}>
     <source src="/assets/back.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
